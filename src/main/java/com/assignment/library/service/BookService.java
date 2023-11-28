@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class BookService {
@@ -40,12 +41,19 @@ public class BookService {
         if( book!=null && book.getCopiesAvailable()>=0 && !authorName.isEmpty() && book.getGenre()!=null ) {
             Author author = authorRepository.findByName(authorName);
             if(author == null){
-                throw new IllegalArgumentException("Author Not Found!!");
+                author = new Author();
+                author.setName(authorName);
+
+                String authorId = new ObjectId().toHexString();
+                author.setId(authorId);
+
+                authorRepository.save(author);
+                book.setAuthorId(authorId);
+            } else {
+                book.setAuthorId(author.getId());
             }
 
-            book.setAuthorId(author.getId());
             Book savedBook = bookRepository.save(book);
-
             author.getBookList().add(savedBook.getId());
             authorRepository.save(author);
 

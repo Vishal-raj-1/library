@@ -28,4 +28,10 @@ public class Address {
     public void setState(String state) {
         this.state = state;
     }
+
+    public Address(){
+        this.houseNo = "";
+        this.city = "";
+        this.state = "";
+    }
 }

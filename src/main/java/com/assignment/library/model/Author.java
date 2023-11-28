@@ -48,5 +48,6 @@ public class Author {
 
     public Author(){
         this.bookList = new ArrayList<>();
+        this.address = new Address();
     }
 }
