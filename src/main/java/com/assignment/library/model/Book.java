@@ -43,4 +43,11 @@ public class Book {
     public void setCopiesAvailable(int copiesAvailable) {
         this.copiesAvailable = copiesAvailable;
     }
+
+    public Book(String id, String genre, String authorId, int copiesAvailable){
+        this.id = id;
+        this.genre = genre;
+        this.authorId = authorId;
+        this.copiesAvailable = copiesAvailable;
+    }
 }
