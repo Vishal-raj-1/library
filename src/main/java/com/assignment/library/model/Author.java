@@ -50,4 +50,11 @@ public class Author {
         this.bookList = new ArrayList<>();
         this.address = new Address();
     }
+
+    public Author(String id, String name){
+        this.id = id;
+        this.name = name;
+        this.bookList = new ArrayList<>();
+        this.address = new Address();
+    }
 }
