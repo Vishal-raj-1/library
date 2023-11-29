@@ -55,7 +55,7 @@ public class BookController {
 
     @GetMapping("/byAuthors")
     public ResponseEntity<List<Book>> getBooksByAuthorIds(@RequestBody List<String> authors) {
-        List<Book> books = bookService.getBooksByAuthorIds(authors);
+        List<Book> books = bookService.getBooksByAuthorNames(authors);
         return new ResponseEntity<>(books, HttpStatus.OK);
     }
 }

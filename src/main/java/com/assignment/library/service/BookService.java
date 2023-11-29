@@ -63,13 +63,13 @@ public class BookService {
         }
     }
 
-    public List<Book> getBooksByAuthorIds(List<String> authors) {
+    public List<Book> getBooksByAuthorNames(List<String> authors) {
         List<Book> books = new ArrayList<>();
 
         for (String authorName : authors) {
             Author author = authorRepository.findByName(authorName);
             List<String> bookIds = author.getBookList();
-            System.out.println("Author: " + authorName);
+
             for(String bookId: bookIds) {
                 Optional<Book> book = bookRepository.findById(bookId);
 

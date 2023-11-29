@@ -50,4 +50,8 @@ public class Book {
         this.authorId = authorId;
         this.copiesAvailable = copiesAvailable;
     }
+
+    public Book(){
+
+    }
 }
