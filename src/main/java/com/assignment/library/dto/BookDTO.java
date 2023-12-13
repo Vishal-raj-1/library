@@ -1,27 +1,28 @@
-package com.assignment.library.model;
+package com.assignment.library.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import lombok.*;
-import org.bson.types.ObjectId;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Getter
+@Setter
 @Data
-@Document(collection = "books")
 @NoArgsConstructor
-public class Book {
-    @Id
+public class BookDTO {
     private String id;
     @NotBlank(message = "Book.genre must be present")
     private String genre;
+    @NotBlank(message = "Book.authorID must be present")
     private String authorId;
     @NotNull
-    @Positive
+    @Positive(message = "Book.copiesAvailable must be positive")
     private int copiesAvailable;
 
-    public Book(String id, String genre, String authorId, int copiesAvailable){
+    public BookDTO(String id, String genre, String authorId, int copiesAvailable){
         this.id = id;
         this.genre = genre;
         this.authorId = authorId;

@@ -1,18 +1,19 @@
 package com.assignment.library.service;
 
+import com.assignment.library.dto.AuthorDTO;
+import com.assignment.library.dto.BookDTO;
 import com.assignment.library.model.Author;
 import com.assignment.library.model.Book;
 import com.assignment.library.repository.AuthorRepository;
 import com.assignment.library.repository.BookRepository;
-import org.bson.types.ObjectId;
+import com.assignment.library.utils.BookDTOEntityConverter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class BookService {
@@ -21,62 +22,66 @@ public class BookService {
     private BookRepository bookRepository;
     @Autowired
     private AuthorRepository authorRepository;
-    public List<Book> getAllBooks() {
-        return bookRepository.findAll();
+    public List<BookDTO> getAllBooks() {
+        return bookRepository
+                .findAll()
+                .stream()
+                .map(BookDTOEntityConverter::entityToDTO)
+                .toList();
     }
 
-    public List<Book> getBooksByGenre(String genre) {
-        return bookRepository.findByGenre(genre);
+    public List<BookDTO> getBooksByGenre(String genre) {
+        return bookRepository
+                .findByGenre(genre)
+                .stream()
+                .map(BookDTOEntityConverter::entityToDTO)
+                .toList();
     }
 
-    public List<Book> getBooksByGenreAndCopiesAvailable(String genre, int copiesAvailable) {
-        return bookRepository.findByGenreAndCopiesAvailableGreaterThan(genre, copiesAvailable);
+    public List<BookDTO> getBooksByGenreAndCopiesAvailable(String genre, int copiesAvailable) {
+        return bookRepository
+                .findByGenreAndCopiesAvailableGreaterThan(genre, copiesAvailable)
+                .stream()
+                .map(BookDTOEntityConverter::entityToDTO)
+                .toList();
     }
 
-    public Book getBookById(String id) {
-        return bookRepository.findById(id).orElse(null);
-    }
-
-    public Book saveBook(Book book, String authorName) {
-        if( book!=null && book.getCopiesAvailable()>=0 && !authorName.isEmpty() && book.getGenre()!=null ) {
-            Author author = authorRepository.findByName(authorName);
-            if(author == null){
-                author = new Author();
-                author.setName(authorName);
-
-                String authorId = new ObjectId().toHexString();
-                author.setId(authorId);
-
-                authorRepository.save(author);
-                book.setAuthorId(authorId);
-            } else {
-                book.setAuthorId(author.getId());
-            }
-
-            Book savedBook = bookRepository.save(book);
-            author.getBookList().add(savedBook.getId());
-            authorRepository.save(author);
-
-            return savedBook;
-        } else{
-            throw new IllegalArgumentException("Invalid/Incomplete details given");
+    public BookDTO getBookById(String id) {
+        Optional<Book> book = bookRepository.findById(id);
+        if(book.isPresent()){
+            return BookDTOEntityConverter.entityToDTO(book.get());
+        } else {
+            throw new NoSuchElementException("No Book found with id: " + id);
         }
     }
 
-    public List<Book> getBooksByAuthorNames(List<String> authors) {
-        List<Book> books = new ArrayList<>();
-
-        for (String authorName : authors) {
-            Author author = authorRepository.findByName(authorName);
-            List<String> bookIds = author.getBookList();
-
-            for(String bookId: bookIds) {
-                Optional<Book> book = bookRepository.findById(bookId);
-
-                book.ifPresent(books::add);
-            }
+    public BookDTO saveBook(BookDTO book, String authorName) {
+        Author author = authorRepository.findByName(authorName);
+        if(author == null){
+            throw new NoSuchElementException("Author Named " + authorName + " Not Found");
         }
 
-        return books;
+        book.setAuthorId(author.getId());
+        Book savedBook = bookRepository.save(BookDTOEntityConverter.dtoToEntity(book));
+
+        return BookDTOEntityConverter.entityToDTO(savedBook);
+    }
+
+    public List<BookDTO> getBooksByAuthorNames(List<String> authorNames) {
+        List<String> authorIds = new ArrayList<>();
+
+        authorNames.forEach(authorName -> {
+            Author author = authorRepository.findByName(authorName);
+
+            if(author != null){
+                authorIds.add(author.getId());
+            }
+        });
+
+        return bookRepository
+                .findByAuthorIdIn(authorIds)
+                .stream()
+                .map(BookDTOEntityConverter::entityToDTO)
+                .toList();
     }
 }
